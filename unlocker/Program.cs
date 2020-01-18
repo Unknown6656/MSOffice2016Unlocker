@@ -9,9 +9,10 @@ namespace unlocker
     {
         public static readonly string[] OSSPP_PATHS =
         {
+            //@"%ProgramFiles%\Microsoft Office\Office15\ospp.vbs",
+            //@"%ProgramFiles(x86)%\Microsoft Office\Office15\ospp.vbs",
             @"%ProgramFiles%\Microsoft Office\Office16\ospp.vbs",
             @"%ProgramFiles(x86)%\Microsoft Office\Office16\ospp.vbs",
-            // TODO : office 10, 13 and 19
         };
         public static readonly string[] KMS_SERVERS =
         {
@@ -52,13 +53,15 @@ namespace unlocker
 - Microsoft Office Professional Plus 2016
 ".Trim());
 
-                FileInfo? ospp = null;
+                FileInfo ospp = null;
                 bool activated = false;
 
                 foreach (string path in OSSPP_PATHS)
                     try
                     {
-                        if (new FileInfo(Environment.ExpandEnvironmentVariables(path)) is { Exists: true } fi)
+                        FileInfo fi = new FileInfo(Environment.ExpandEnvironmentVariables(path));
+
+                        if (fi?.Exists ?? false)
                         {
                             ospp = fi;
 
@@ -84,7 +87,7 @@ namespace unlocker
 
                 (int exit, string stdout) exec_ospp(string args)
                 {
-                    using Process proc = new Process
+                    using (Process proc = new Process
                     {
                         StartInfo = new ProcessStartInfo
                         {
@@ -96,32 +99,33 @@ namespace unlocker
                             RedirectStandardOutput = true,
                             RedirectStandardError = true,
                         }
-                    };
-
-                    proc.Start();
-                    proc.WaitForExit();
-
-                    string stdout = proc.StandardOutput.ReadToEnd().Replace("\r\n", "\n").Trim() + "\n";
-                    string stderr = proc.StandardError.ReadToEnd().Trim() + "\n";
-
-                    stdout = Regex.Replace(stdout, @"^---[^\n\r]*---$", "", RegexOptions.Multiline).Replace("\n\n", "\n").Trim();
-
-                    Console.ForegroundColor = ConsoleColor.White;
-                    Console.WriteLine($"Excuting 'cscript {proc.StartInfo.Arguments}' ...");
-
-                    if (!string.IsNullOrWhiteSpace(stdout))
+                    })
                     {
-                        Console.ForegroundColor = ConsoleColor.DarkCyan;
-                        Console.WriteLine(stdout);
-                    }
+                        proc.Start();
+                        proc.WaitForExit();
 
-                    if (!string.IsNullOrWhiteSpace(stderr))
-                    {
-                        Console.ForegroundColor = ConsoleColor.DarkRed;
-                        Console.WriteLine(stderr);
-                    }
+                        string stdout = proc.StandardOutput.ReadToEnd().Replace("\r\n", "\n").Trim() + "\n";
+                        string stderr = proc.StandardError.ReadToEnd().Trim() + "\n";
 
-                    return (proc.ExitCode, stdout);
+                        stdout = Regex.Replace(stdout, @"^---[^\n\r]*---$", "", RegexOptions.Multiline).Replace("\n\n", "\n").Trim();
+
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.WriteLine($"Excuting 'cscript {proc.StartInfo.Arguments}' ...");
+
+                        if (!string.IsNullOrWhiteSpace(stdout))
+                        {
+                            Console.ForegroundColor = ConsoleColor.DarkCyan;
+                            Console.WriteLine(stdout);
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(stderr))
+                        {
+                            Console.ForegroundColor = ConsoleColor.DarkRed;
+                            Console.WriteLine(stderr);
+                        }
+
+                        return (proc.ExitCode, stdout);
+                    }
                 }
                 DirectoryInfo licencedir = new DirectoryInfo($"{ospp.Directory.FullName}/../root/Licenses16");
 
