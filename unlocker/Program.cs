@@ -177,11 +177,15 @@ namespace unlocker
         }
     }
 }
+
 /*
-    (        if exist "%ProgramFiles%\Microsoft Office\Office16\ospp.vbs"            cd /d "%ProgramFiles%\Microsoft Office\Office16"    )
-    (        if exist "%ProgramFiles(x86)%\Microsoft Office\Office16\ospp.vbs"            cd /d "%ProgramFiles(x86)%\Microsoft Office\Office16"    )
-    (        for /f %%x in ('dir /b ..\root\Licenses16\proplusvl_kms*.xrm-ms') do            cscript ospp.vbs /inslic:"..\root\Licenses16\%%x" > nul    )
-    (        for /f %%x in ('dir /b ..\root\Licenses16\proplusvl_mak*.xrm-ms') do            cscript ospp.vbs /inslic:"..\root\Licenses16\%%x" > nul    )
+ * BATCH EQUIVALENT:
+
+    @echo off
+    (if exist "%ProgramFiles%\Microsoft Office\Office16\ospp.vbs" cd /d "%ProgramFiles%\Microsoft Office\Office16")
+    (if exist "%ProgramFiles(x86)%\Microsoft Office\Office16\ospp.vbs" cd /d "%ProgramFiles(x86)%\Microsoft Office\Office16")
+    (for /f %%x in ('dir /b ..\root\Licenses16\proplusvl_kms*.xrm-ms') do cscript ospp.vbs /inslic:"..\root\Licenses16\%%x" > nul)
+    (for /f %%x in ('dir /b ..\root\Licenses16\proplusvl_mak*.xrm-ms') do cscript ospp.vbs /inslic:"..\root\Licenses16\%%x" > nul)
     cscript //nologo ospp.vbs /unpkey:WFG99 > nul
     cscript //nologo ospp.vbs /unpkey:DRTFM > nul
     cscript //nologo ospp.vbs /unpkey:BTDRB > nul
@@ -192,14 +196,10 @@ namespace unlocker
     if %i%==1 set KMS_Sev=kms7.MSGuides.com
     if %i%==2 set KMS_Sev=kms8.MSGuides.com
     if %i%==3 set KMS_Sev=kms9.MSGuides.com
-    if %i%==4 goto notsupported
+    if %i%==4 goto halt
     cscript //nologo ospp.vbs /sethst:%KMS_Sev% > nul
-    cscript //nologo ospp.vbs /act | find /i "successful" || (
-        set /a i+=1
-        goto server
-    )
+    cscript //nologo ospp.vbs /act | find /i "successful" || (set /a i+=1 & goto server)
     goto halt
-:notsupported
 :halt
-    pause
+    echo "an error occured."
 */
