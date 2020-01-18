@@ -19,3 +19,5 @@ Virustotal reports the file to be **clean**:
  - File scan: https://www.virustotal.com/gui/file/9192fc4263ed1917dc791c65483d1342206fa8186dcaf5d687235907f91054b8/detection
 
 However, Windows Defender might be raising the alarm on the **source file** `Program.cs`, instead of the compiled binary. So, add your code directory to the Windows Defender exclusion list if you decide to build the application from source.
+
+> THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
