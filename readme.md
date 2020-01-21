@@ -1,5 +1,5 @@
-# Microsoft Office 2016 Unlocker
-This repository contains the code and the compiled binary to active Microsoft Office 2016. 
+# Microsoft Office 2016/2019 Unlocker
+This repository contains the code and the compiled binary to active Microsoft Office 2016/2019. 
 
 ## I don't care about anything, just give me the f████ng download!
 Here ya go: https://github.com/Unknown6656/MSOffice2016Unlocker/releases

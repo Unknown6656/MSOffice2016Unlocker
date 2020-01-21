@@ -50,7 +50,9 @@ namespace unlocker
                 Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.WriteLine(@"
 - Microsoft Office Standard 2016
+- Microsoft Office Standard 2019
 - Microsoft Office Professional Plus 2016
+- Microsoft Office Professional Plus 2019
 ".Trim());
 
                 FileInfo ospp = null;
