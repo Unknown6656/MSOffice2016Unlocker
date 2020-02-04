@@ -20,13 +20,13 @@ namespace unlocker
             "kms8.MSGuides.com",
             "kms9.MSGuides.com",
         };
-        public static readonly (string[] parts, string serial) KEY = (new[]
-        {
+        public static readonly string KEY_SERIAL = "XQNVK-8JYDB-WJ9W3-YJ8YR-WFG99";
+        public static readonly string[] KEY_PARTS = {
             "WFG99",
             "DRTFM",
             "BTDRB",
             "CPQVG"
-        }, "XQNVK-8JYDB-WJ9W3-YJ8YR-WFG99");
+        };
 
         public static void Main()
         {
@@ -87,7 +87,7 @@ namespace unlocker
                     Console.WriteLine("KMS Script location: " + ospp.FullName);
                 }
 
-                (int exit, string stdout) exec_ospp(string args)
+                Tuple<int, string> exec_ospp(string args)
                 {
                     using (Process proc = new Process
                     {
@@ -126,7 +126,7 @@ namespace unlocker
                             Console.WriteLine(stderr);
                         }
 
-                        return (proc.ExitCode, stdout);
+                        return new Tuple<int, string>(proc.ExitCode, stdout);
                     }
                 }
                 DirectoryInfo licencedir = new DirectoryInfo($"{ospp.Directory.FullName}/../root/Licenses16");
@@ -140,18 +140,18 @@ namespace unlocker
                 Console.ForegroundColor = ConsoleColor.Gray;
                 Console.WriteLine("Activating Microsoft Office ...");
 
-                foreach (string part in KEY.parts)
+                foreach (string part in KEY_PARTS)
                     exec_ospp($"/unpkey:{part}");
 
-                exec_ospp($"/inpkey:{KEY.serial}");
+                exec_ospp($"/inpkey:{KEY_SERIAL}");
 
                 foreach (string server in KMS_SERVERS)
                 {
                     exec_ospp($"/sethst:{server}");
 
-                    (_, string result) = exec_ospp("/act");
+                    Tuple<int, string> result = exec_ospp("/act");
 
-                    if (result.ToLower().Contains("successful"))
+                    if (result.Item2.ToLower().Contains("successful"))
                     {
                         activated = true;
 
