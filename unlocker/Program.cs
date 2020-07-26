@@ -1,16 +1,20 @@
 ﻿using System.Text.RegularExpressions;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.IO;
 using System;
 
 namespace unlocker
 {
+    using Properties;
+
     public static class Program
     {
         public static readonly string[] OSSPP_PATHS =
         {
-            //@"%ProgramFiles%\Microsoft Office\Office15\ospp.vbs",
-            //@"%ProgramFiles(x86)%\Microsoft Office\Office15\ospp.vbs",
+            @"%ProgramFiles%\Microsoft Office\Office15\ospp.vbs",
+            @"%ProgramFiles(x86)%\Microsoft Office\Office15\ospp.vbs",
             @"%ProgramFiles%\Microsoft Office\Office16\ospp.vbs",
             @"%ProgramFiles(x86)%\Microsoft Office\Office16\ospp.vbs",
         };
@@ -27,6 +31,19 @@ namespace unlocker
             "BTDRB",
             "CPQVG"
         };
+        public static readonly Dictionary<string, byte[]> LICENSES = new Dictionary<string, byte[]>
+        {
+            ["ProPlusVL_KMS_Client-ppd.xrm-ms"] = Resources.ProPlusVL_KMS_Client_ppd,
+            ["ProPlusVL_KMS_Client-ul.xrm-ms"] = Resources.ProPlusVL_KMS_Client_ul,
+            ["ProPlusVL_MAK-ppd.xrm-ms"] = Resources.ProPlusVL_MAK_ppd,
+            ["ProPlusVL_MAK-ul-phn.xrm-ms"] = Resources.ProPlusVL_MAK_ul_phn,
+            ["ProPlusVL_KMS_Client-ul-oob.xrm-ms"] = Resources.ProPlusVL_KMS_Client_ul_oob,
+            ["ProPlusVL_MAK-pl.xrm-ms"] = Resources.ProPlusVL_MAK_pl,
+            ["ProPlusVL_MAK-ul-oob.xrm-ms"] = Resources.ProPlusVL_MAK_ul_oob,
+        };
+
+        public static readonly Regex REGEX_PROPLUSVL = new Regex(@"^proplusvl_(kms|mak).*\.xrm-ms$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        public static readonly Regex REGEX_LICDIR = new Regex(@"Licenses\d+", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public static void Main()
         {
@@ -112,7 +129,7 @@ namespace unlocker
                         stdout = Regex.Replace(stdout, @"^---[^\n\r]*---$", "", RegexOptions.Multiline).Replace("\n\n", "\n").Trim();
 
                         Console.ForegroundColor = ConsoleColor.White;
-                        Console.WriteLine($"Excuting 'cscript {proc.StartInfo.Arguments}' ...");
+                        Console.WriteLine($"Excuting '%windir%\\system32\\cscript {proc.StartInfo.Arguments}' ...");
 
                         if (!string.IsNullOrWhiteSpace(stdout))
                         {
@@ -129,13 +146,31 @@ namespace unlocker
                         return new Tuple<int, string>(proc.ExitCode, stdout);
                     }
                 }
-                DirectoryInfo licencedir = new DirectoryInfo($"{ospp.Directory.FullName}/../root/Licenses16");
+                DirectoryInfo licensedir = new DirectoryInfo($"{ospp.Directory.FullName}/../root");
 
-                if (licencedir.Exists)
-                    foreach (FileInfo licence in licencedir.GetFiles())
-                        if (Regex.IsMatch(licence.Name, @"^proplusvl_(kms|mak).*\.xrm-ms$", RegexOptions.Compiled | RegexOptions.IgnoreCase))
-                            exec_ospp($"/inslic:\"{licence.FullName}\"");
-                // else : error
+                if (!licensedir.Exists)
+                    licensedir.Create();
+
+                licensedir = licensedir.EnumerateDirectories().FirstOrDefault(dir => REGEX_LICDIR.IsMatch(dir.Name)) ?? licensedir.CreateSubdirectory("Licenses16");
+
+                foreach (string licence in LICENSES.Keys)
+                {
+                    string licpath = Path.Combine(licensedir.FullName, licence);
+
+                    if (!File.Exists(licpath))
+                    {
+                        Console.ForegroundColor = ConsoleColor.Gray;
+                        Console.WriteLine($"Generating license file '{licpath}' from internal storage ...");
+
+                        File.WriteAllBytes(licpath, LICENSES[licence]);
+
+                        Console.WriteLine($"Written license file '{licpath}' from internal storage ({LICENSES[licence].Length} Bytes).");
+                    }
+                }
+
+                foreach (FileInfo licence in licensedir.GetFiles())
+                    if (REGEX_PROPLUSVL.IsMatch(licence.Name))
+                        exec_ospp($"/inslic:\"{licence.FullName}\"");
 
                 Console.ForegroundColor = ConsoleColor.Gray;
                 Console.WriteLine("Activating Microsoft Office ...");
